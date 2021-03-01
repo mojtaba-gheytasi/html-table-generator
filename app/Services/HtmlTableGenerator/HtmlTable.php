@@ -1,14 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\HtmlTableGenerator;
 
+use App\Services\HtmlTableGenerator\Decorator\Decorator;
+use App\Services\HtmlTableGenerator\Decorator\DecoratorHelper;
+use App\Services\HtmlTableGenerator\Paginator\PaginatorInterface;
 use App\Services\HtmlTableGenerator\Repositories\RepositoryInterface;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\HtmlString;
 
 abstract class HtmlTable
 {
+    use DecoratorHelper;
+
     private ?string $sortBy;
 
     private string $sortDirection;
@@ -19,13 +24,19 @@ abstract class HtmlTable
 
     private int $pageNumber;
 
+    private string $urlPath;
+
+    private PaginatorInterface $paginator;
+
     public function __construct(Request $request)
     {
+        $this->urlPath = $request->path();
         $this->sortBy = $request->get('sortBy');
         $this->sortDirection = $request->get('sortDirection', 'asc');
         $this->searchTerm = $request->get('searchTerm');
-        $this->rowPerPage = $request->get('rowPerPage', 20);
-        $this->pageNumber = $request->get('pageNumber', 2);
+        $this->rowPerPage = (int) $request->get('rowPerPage', 10);
+        $this->pageNumber = (int) $request->get('page', 1);
+        $this->paginator = resolve(PaginatorInterface::class);
     }
 
     abstract protected function getRepository() : RepositoryInterface;
@@ -36,32 +47,41 @@ abstract class HtmlTable
 
     public function getResult() : array
     {
-        [$count, $collection] = $this->getRowsFromRepository();
+        [$count, $collection] = $this->getResultFromRepository();
 
-        $presenter = new Presenter($collection, $this->columns());
+        $decoratedCollection = (new Decorator($collection, $this->columns()))->decorate();
 
-        $decoratedCollection = $presenter->present();
+        $paginatedResult = $this->paginator->paginate(
+            $decoratedCollection,
+            $count,
+            $this->rowPerPage,
+            $this->pageNumber,
+            $this->urlPath
+        );
 
         return [
-            'count' => $count,
-            'collection' => $decoratedCollection,
+            'paginator' => $paginatedResult,
             'columns' => $this->columns(),
-            'sortBy' => $this->sortBy,
-            'sortDirection' => $this->sortDirection,
-            'searchTerm' => $this->searchTerm,
+            'sortableColumns' => $this->getSortableColumns(),
             'heading' => $this->heading(),
         ];
     }
 
-    private function getRowsFromRepository() : array
+    public function getSortableColumns() : array
+    {
+        return array_filter($this->columns(), function ($column) {
+            return $column->isSortable();
+        });
+    }
+
+    private function getResultFromRepository() : array
     {
         $repository = $this->getRepository();
 
         if ($this->searchTerm !== null) {
             foreach ($this->columns() as $column) {
-
                 if ($column->isSearchable()) {
-                    $repository->applySearch($column->name, $this->searchTerm);
+                    $repository->applySearch($column->getName(), $this->searchTerm);
                 }
             }
         }
@@ -70,27 +90,22 @@ abstract class HtmlTable
             $repository->applySort($this->sortBy, $this->sortDirection);
         }
 
-        $repository->applyPagination($this->rowPerPage, $this->getSkippableRowCount());
+        $count = null;
+
+        if ($repository->resourceIsInternal()) {
+            $count = $repository->getCount();
+        }
+
+        $repository->applyPagination($this->rowPerPage, $this->pageNumber);
+
+        if ($count === null) {
+            $count = $repository->getCount();
+        }
 
         return [
-            $repository->getCount(),
+            $count,
             $repository->getRecords(),
         ];
-    }
-
-    private function getSkippableRowCount() : int
-    {
-        return $this->rowPerPage * ($this->pageNumber - 1);
-    }
-
-    protected function toHtml(string $html): HtmlString
-    {
-        return new HtmlString($html);
-    }
-
-    protected function toDateTimeFormat(string $dateTime, string $format) : string
-    {
-        return Carbon::make($dateTime)->format($format);
     }
 
 }
