@@ -6,7 +6,6 @@ use Illuminate\Support\Collection;
 
 class ApiRepository implements RepositoryInterface
 {
-
     public $queryBuilder;
 
     public function __construct($model)
@@ -34,9 +33,13 @@ class ApiRepository implements RepositoryInterface
         // TODO: Implement getRecords() method.
     }
 
-
     public function getRecords(): Collection
     {
         // TODO: Implement getRecords() method.
+    }
+
+    public function resourceType(): string
+    {
+        // TODO: Implement resourceType() method.
     }
 }

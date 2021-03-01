@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\HtmlTableGenerator;
 
 use Illuminate\Support\Collection;
 use stdClass;
 
-class Presenter
+class Decorator
 {
     private Collection $collection;
 
@@ -22,7 +24,7 @@ class Presenter
         $object = new StdClass;
 
         foreach ($this->columns as $column) {
-            $object->{$column->getName()} = $column->isDecorated() ?
+            $object->{$column->getDisplayName()} = $column->isDecorated() ?
                                             $column->decorate($row, $column) :
                                             data_get($row, $column->getName());
         }
@@ -30,7 +32,7 @@ class Presenter
         return $object;
     }
 
-    public function present() : Collection
+    public function decorate() : Collection
     {
         $result = [];
 
