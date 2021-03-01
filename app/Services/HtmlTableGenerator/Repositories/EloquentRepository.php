@@ -23,8 +23,10 @@ class EloquentRepository implements RepositoryInterface
         $this->queryBuilder->orderBy($columnName, $direction);
     }
 
-    public function applyPagination(int $rowPerPage, int $skippableRowCount)
+    public function applyPagination(int $rowPerPage, int $pageNumber)
     {
+        $skippableRowCount = $this->getSkippableRowCount($rowPerPage, $pageNumber);
+
         $this->queryBuilder->offset($skippableRowCount)->limit($rowPerPage);
     }
 
@@ -36,5 +38,15 @@ class EloquentRepository implements RepositoryInterface
     public function getRecords() : Collection
     {
         return $this->queryBuilder->get();
+    }
+
+    public function resourceIsInternal(): bool
+    {
+        return true;
+    }
+
+    private function getSkippableRowCount(int $rowPerPage, int $pageNumber) : int
+    {
+        return $rowPerPage * ($pageNumber - 1);
     }
 }
