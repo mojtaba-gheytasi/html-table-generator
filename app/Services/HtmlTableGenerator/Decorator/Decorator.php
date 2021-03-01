@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Services\HtmlTableGenerator;
+namespace App\Services\HtmlTableGenerator\Decorator;
 
 use Illuminate\Support\Collection;
 use stdClass;

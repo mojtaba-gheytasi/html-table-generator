@@ -1,30 +1,30 @@
 <?php
 
-namespace App\Services\HtmlTableGenerator;
+declare(strict_types=1);
 
-use Illuminate\Support\Str;
+namespace App\Services\HtmlTableGenerator;
 
 class Column
 {
     private string $displayName;
 
-    private string $name;
+    private ?string $name = null;
 
     private bool $sortable = false;
 
     private bool $searchable = false;
 
-    private ?int $width = null;
+    private ?string $width = null;
 
     private $formatCallback;
 
-    public function __construct(string $displayName, ?string $name)
+    public function __construct(string $displayName, string $name)
     {
         $this->displayName = $displayName;
-        $this->name = $name ?? Str::snake(Str::lower($displayName));
+        $this->name = $name;
     }
 
-    public static function make(string $displayName, ?string $name = null) : self
+    public static function make(string $displayName, string $name) : self
     {
         return new static($displayName, $name);
     }
@@ -63,7 +63,7 @@ class Column
         return $this->searchable === true;
     }
 
-    public function setWidth(int $width) : self
+    public function setWidth(string $width) : self
     {
         $this->width = $width;
 
@@ -75,7 +75,7 @@ class Column
         return $this->width !== null;
     }
 
-    public function getWidth() : ?int
+    public function getWidth() : ?string
     {
         return $this->width;
     }
