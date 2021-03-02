@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
     tty: true
     ports:
-      - 33060:3306
+      - 33068:3306
     volumes:
       - ./docker/mysql/data:/var/lib/mysql
     environment:
@@ -54,17 +54,6 @@ services:
       SERVICE_TAGS: dev
     ports:
       - 9000:9000
-    networks:
-      - bugloos
-
-  redis:
-    image: redis:latest
-    container_name: redis
-    restart: unless-stopped
-    volumes:
-      - ./docker/redis/data:/data
-    ports:
-      - 6379:6379
     networks:
       - bugloos
 
