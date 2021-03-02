@@ -15,8 +15,9 @@ $ docker-compose exec app php db:seed
 ## Run the App
 
 - Open your browser and :
-  visit application : **http://127.0.0.1:8080**
-  visit phpMyAdmin  : **http://127.0.0.1:8585**
+  - visit application : **http://127.0.0.1:8080**
+  - visit phpMyAdmin  : **http://127.0.0.1:8585**
+    
+**Best regards**,
 
-**Best regards,**
 Mojtaba Gheytasi
