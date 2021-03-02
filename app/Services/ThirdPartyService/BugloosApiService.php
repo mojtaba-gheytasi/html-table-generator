@@ -22,8 +22,8 @@ class BugloosApiService
 
         $result = $this->request($path, [
             'per_page' => $params['rowPerPage'],
-            'sort_by' => $params['sortBy'],
-            'sort_direction' => $params['sortDirection'],
+            'sort_by' => $params['sortBy'] ?? '',
+            'sort_direction' => $params['sortDirection'] ?? '',
             'page_number' => $params['page'] ?? 1,
             'search' => $params['searchTerm'] ?? '',
             'searchable_column' => $params['searchableColumn'] ?? [],

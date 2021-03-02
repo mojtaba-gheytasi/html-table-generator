@@ -9,6 +9,7 @@ use App\Services\HtmlTableGenerator\Decorator\DecoratorHelper;
 use App\Services\HtmlTableGenerator\Paginator\PaginatorInterface;
 use App\Services\HtmlTableGenerator\Repositories\RepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 abstract class HtmlTable
 {
@@ -33,7 +34,7 @@ abstract class HtmlTable
         $this->urlPath = $request->path();
         $this->sortBy = $request->get('sortBy');
         $this->sortDirection = $request->get('sortDirection', 'asc');
-        $this->searchTerm = $request->get('searchTerm');
+        $this->searchTerm = $request->get('searchTerm') ? Str::lower($request->get('searchTerm')) : null;
         $this->rowPerPage = (int) $request->get('rowPerPage', 10);
         $this->pageNumber = (int) $request->get('page', 1);
         $this->paginator = resolve(PaginatorInterface::class);

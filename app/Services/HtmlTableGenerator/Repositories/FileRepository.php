@@ -6,6 +6,7 @@ namespace App\Services\HtmlTableGenerator\Repositories;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FileRepository implements RepositoryInterface
 {
@@ -22,7 +23,7 @@ class FileRepository implements RepositoryInterface
     public function applySearch(string $columnName, string $term)
     {
         $filteredRows = $this->collection->filter(function ($row) use ($term, $columnName) {
-            return strpos($row->{$columnName}, $term) !== false;
+            return strpos(Str::lower($row->{$columnName}), $term) !== false;
         });
 
         $this->filteredCollection->push(...$filteredRows);

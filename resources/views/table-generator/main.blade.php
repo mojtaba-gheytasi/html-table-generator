@@ -80,7 +80,7 @@
             requestToServer(event, page);
         })
 
-        $(document).on('keyup', '#search', function(event) {
+        $(document).on('keyup', '#searchTerm', function(event) {
             let page = 1;
             requestToServer(event, page);
         });
