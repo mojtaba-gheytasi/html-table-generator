@@ -11,7 +11,7 @@ $ docker-compose exec app php artisan migrate
 $ docker-compose exec app php db:seed
 ```
 
-## Run the App
+### Run the App
 
 - Open your browser and:
   - visit application: **http://127.0.0.1:8080**
